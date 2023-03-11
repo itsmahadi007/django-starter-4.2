@@ -27,9 +27,9 @@ django.setup()
 
 # -- Project information -----------------------------------------------------
 
-project = "backend"
-copyright = """2023, Mahadi Hassan"""
-author = "Mahadi Hassan"
+project = "My Awesome Project"
+copyright = """2023, Mahadi"""
+author = "Mahadi"
 
 
 # -- General configuration ---------------------------------------------------

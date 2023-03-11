@@ -1,5 +1,5 @@
 """
-ASGI config for backend project.
+ASGI config for My Awesome Project project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
@@ -14,9 +14,9 @@ from pathlib import Path
 from django.core.asgi import get_asgi_application
 
 # This allows easy placement of apps within the interior
-# backend directory.
+# my_awesome_project directory.
 BASE_DIR = Path(__file__).resolve(strict=True).parent.parent
-sys.path.append(str(BASE_DIR / "backend"))
+sys.path.append(str(BASE_DIR / "my_awesome_project"))
 
 # If DJANGO_SETTINGS_MODULE is unset, default to the local settings
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "config.settings.local")

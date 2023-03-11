@@ -1,7 +1,7 @@
 import pytest
 
-from backend.users.models import User
-from backend.users.tests.factories import UserFactory
+from my_awesome_project.users.models import User
+from my_awesome_project.users.tests.factories import UserFactory
 
 
 @pytest.fixture(autouse=True)

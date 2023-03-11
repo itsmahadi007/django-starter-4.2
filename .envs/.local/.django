@@ -10,5 +10,5 @@ REDIS_URL=redis://redis:6379/0
 # ------------------------------------------------------------------------------
 
 # Flower
-CELERY_FLOWER_USER=debug
-CELERY_FLOWER_PASSWORD=debug
+CELERY_FLOWER_USER=cLtOJgWmPPccFWroDtDhLjvgHHFKZXJo
+CELERY_FLOWER_PASSWORD=JQkIkGSpgO87tS12Y8WIzBxPy9y1efkdwXRaAVmJbNTImNQoQH8gTN79uBkt0Rjb

@@ -22,7 +22,7 @@ certificatesResolvers:
   letsencrypt:
     # https://docs.traefik.io/master/https/acme/#lets-encrypt
     acme:
-      email: "itsmahadi@gmail.com"
+      email: "mahadi@example.com"
       storage: /etc/traefik/acme/acme.json
       # https://docs.traefik.io/master/https/acme/#httpchallenge
       httpChallenge:
@@ -50,6 +50,16 @@ http:
         # https://docs.traefik.io/master/routing/routers/#certresolver
         certResolver: letsencrypt
 
+    web-media-router:
+      rule: "Host(`example.com`) && PathPrefix(`/media/`)"
+      entryPoints:
+        - web-secure
+      middlewares:
+        - csrf
+      service: django-media
+      tls:
+        certResolver: letsencrypt
+
   middlewares:
     csrf:
       # https://docs.traefik.io/master/middlewares/headers/#hostsproxyheaders
@@ -67,6 +77,11 @@ http:
       loadBalancer:
         servers:
           - url: http://flower:5555
+
+    django-media:
+      loadBalancer:
+        servers:
+          - url: http://nginx:80
 
 providers:
   # https://docs.traefik.io/master/providers/file/

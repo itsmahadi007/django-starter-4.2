@@ -5,7 +5,7 @@
       <entry url="file://$PROJECT_DIR$">
         <entryData>
           <resourceRoots>
-            <path value="file://$PROJECT_DIR$/backend/static" />
+            <path value="file://$PROJECT_DIR$/my_awesome_project/static" />
           </resourceRoots>
         </entryData>
       </entry>
