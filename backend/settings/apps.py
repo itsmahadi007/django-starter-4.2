@@ -32,6 +32,7 @@ THIRD_PARTY_APPS = [
     "django_filters",
     "corsheaders",
     "django_celery_beat",
+    "django_advance_thumbnail",
     # 'two_factor',
 ]
 

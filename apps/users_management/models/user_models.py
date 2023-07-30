@@ -1,10 +1,8 @@
-import os
-
-from PIL import Image
 from django.contrib.auth.models import AbstractUser
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from django_advance_thumbnail import AdvanceThumbnailField
 
 from backend.utils.text_choices import UserType, RequestToType, VerificationStatusType
 
@@ -39,12 +37,13 @@ class UserManage(AbstractUser):
     email_verified = models.BooleanField(default=False)
 
     profile_image = models.ImageField(upload_to=attachment_path, blank=True, null=True)
-    profile_image_thumbnail = models.ImageField(
-        upload_to=attachment_path, max_length=250, blank=True, null=True
+    profile_image_thumbnail = AdvanceThumbnailField(
+        source_field='profile_image', upload_to=attachment_path, null=True, blank=True, size=(300, 300)
     )
+
     # User Type
     user_type = models.CharField(
-        max_length=50, choices=UserType.choices, default=UserType.STUDENT
+        max_length=50, choices=UserType.choices, default=UserType.NOT_DEFINED
     )
 
     # Identification
@@ -61,37 +60,8 @@ class UserManage(AbstractUser):
     postal_code = models.CharField(max_length=100, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
 
-    def create_thumbnail(self):
-        try:
-            # Open the original image using Pillow
-            original_image = Image.open(self.profile_image.path)
-
-            # Create a thumbnail image using Pillow
-            thumbnail_image = original_image.copy()
-            thumbnail_image.thumbnail((150, 150))
-
-            # Generate thumbnail filename based on the original image's filename
-            original_filename = os.path.basename(self.profile_image.path)
-            original_name, original_ext = os.path.splitext(original_filename)
-            thumbnail_filename = f"{original_name}_thumbnail{original_ext}"
-
-            # Set the thumbnail filename to profile_image_thumbnail and save the model
-            self.profile_image_thumbnail.name = os.path.join(
-                os.path.dirname(self.profile_image.name), thumbnail_filename
-            )
-            self.save(skip_thumbnail_creation=True)
-
-            # Save the thumbnail image
-            thumbnail_path = self.profile_image_thumbnail.path
-            thumbnail_image.save(thumbnail_path)
-        except Exception as e:
-            print("While creating thumbnail: ", e)
-
     def save(self, *args, **kwargs):
-        skip_thumbnail_creation = kwargs.pop("skip_thumbnail_creation", False)
         super(UserManage, self).save(*args, **kwargs)
-        if self.profile_image and not skip_thumbnail_creation:
-            self.create_thumbnail()
 
         # # Create a FinancialAccount if the user is new and its user_type is investor
         # if self.user_type == UserType.INVESTOR:
