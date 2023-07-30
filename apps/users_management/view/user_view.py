@@ -1,4 +1,6 @@
 # from allauth.account.utils import complete_signup
+from asgiref.sync import async_to_sync
+from channels.layers import get_channel_layer
 from django.db.models import Q
 from django.utils.decorators import method_decorator
 from django.views.decorators.debug import sensitive_post_parameters
@@ -91,7 +93,6 @@ def user_update(request, id):
         "postal_code",
         "country",
         "nid_verification_note",
-        "request_nid_verification",
         "nid_verified",
 
     ]:
@@ -147,6 +148,31 @@ def user_update(request, id):
     )
 
     serializer_obj = UserSerializer(user_profile, context={"request": request})
+
+    # Sending Notification to all members
+    room_name = f"user_update"
+    channel_layer = get_channel_layer()
+    # You can customize the data you want to send here.
+    data = {
+        'id': user_profile.id,
+        'username': user_profile.username,
+        'request_data': request.data
+        # ... more fields as needed
+    }
+    event = {'type': 'user_update', 'content': data}
+
+    try:
+        async_to_sync(channel_layer.group_send)(room_name, event)
+    except Exception as e:
+        print("Error in sending user update notification to all members e", e)
+        try:
+            data = {
+                "message": str(e),
+            }
+            event = {"type": "user_update", "content": data}
+            async_to_sync(channel_layer.group_send)(room_name, event)
+        except Exception as ex:
+            print("Error in sending error message to user update notification: ", ex)
 
     return Response(
         serializer_obj.data,
