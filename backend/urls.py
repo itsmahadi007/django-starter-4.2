@@ -61,10 +61,10 @@ if DEBUG:
     ]
 
 urlpatterns += [
-    path("", include("apps.users_management.urls")),
+    path("api/", include("apps.users_management.urls")),
     # path("api/", include("apps.croud_founding.urls")),
-    path("", include("apps.authentication.urls")),
-    path("", include("apps.notification_manager.urls")),
+    path("api/", include("apps.authentication.urls")),
+    path("api/", include("apps.notification_manager.urls")),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

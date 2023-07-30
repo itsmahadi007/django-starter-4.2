@@ -59,7 +59,6 @@ class UserSerializer(serializers.ModelSerializer):
             "nid_no",
             "nid_image",
             "nid_verified",
-            "request_nid_verification",
             "nid_verification_note",
 
             "address",
@@ -71,7 +70,6 @@ class UserSerializer(serializers.ModelSerializer):
             "is_superuser",
             "is_staff",
             "is_active",
-
 
         )
 

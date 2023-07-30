@@ -1,4 +1,3 @@
-# from pms.settings import REDIS_HOST, REDIS_PORT
 from backend.settings import REDIS_HOST, REDIS_PORT
 
 CHANNEL_LAYERS = {

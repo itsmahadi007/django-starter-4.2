@@ -14,6 +14,7 @@ INSTALLED_APPS = [
 
 # 3rd party app
 THIRD_PARTY_APPS = [
+    "channels",
     "drf_yasg",
     "simple_history",
     "rest_framework",

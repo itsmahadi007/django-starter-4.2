@@ -4,6 +4,7 @@ from dj_rest_auth.views import (
 from django.urls import path, include
 from rest_framework import routers
 
+from apps.users_management.view.test_view import async_view
 from apps.users_management.view.user_view import (
     user_information,
     user_update,
@@ -19,8 +20,8 @@ route = routers.DefaultRouter()
 # route.register("users", UserViewSet)
 urlpatterns = [
     path("", include(route.urls)),
-    path("api/user_waiting_for_verification/", user_waiting_for_verification),
-    path("api/user_verification_updates/<int:id>/verify/", user_verification_updates),
+    path("user_waiting_for_verification/", user_waiting_for_verification),
+    path("user_verification_updates/<int:id>/verify/", user_verification_updates),
     path("check_unique_username/", check_unique_username),
     path("check_unique_email/", check_unique_email),
     path("current-user/", user_information, name="current-user"),
@@ -28,4 +29,6 @@ urlpatterns = [
     path("user_update/<int:id>/", user_update),
     path("test_mail/", TestMail.as_view(), name="test_mail"),
     path("test_sms/", TestSMS.as_view(), name="TestSMS"),
+
+    path("async_view/", async_view, name="async_view"),
 ]

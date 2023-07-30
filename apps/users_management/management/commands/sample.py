@@ -8,7 +8,7 @@ class Command(BaseCommand):
     help = "Add Sample Data"
 
     @staticmethod
-    def create_superuser(username, password, email, first_name, last_name, user_type):
+    def create_superuser(username, password, email, first_name, last_name, user_type=None):
         users = UserManage.objects.filter(username=username)
         num = len(users)
         if num:
@@ -24,7 +24,6 @@ class Command(BaseCommand):
             email_verified=True,
             first_name=first_name,
             last_name=last_name,
-            user_type=user_type,
         )
 
         EmailAddress.objects.create(
@@ -43,7 +42,6 @@ class Command(BaseCommand):
             email="itsmahadi@gmail.com",
             first_name="",
             last_name="",
-            user_type="admin",
         )
 
         self.create_superuser(
@@ -52,7 +50,6 @@ class Command(BaseCommand):
             email="me.mahadi10@gmail.com",
             first_name="Mahadi",
             last_name="Hassan",
-            user_type="investor",
         )
 
         try:
