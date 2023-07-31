@@ -3,6 +3,7 @@ version: '3'
 services:
   db:
     image: postgres
+    platform: linux/amd64
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=1516
@@ -14,12 +15,9 @@ services:
     command: -p 5436
     restart: always
 
-    volumes:
-      - db_data:/var/lib/postgresql/data
-      - db_backup:/var/lib/postgresql/backup
-
   redis:
     image: redis:5-alpine
+    platform: linux/amd64
     command: --port 6391
     ports:
       - "6391:6391"
@@ -27,49 +25,71 @@ services:
       - 6391
     restart: always
 
-
-  rabbitmq:
-    image: rabbitmq:3.9-alpine
-
-
   app:
+    platform: linux/amd64
     build:
       context: .
       dockerfile: Dockerfile
     depends_on:
       - db
       - redis
-    #    command: python manage.py runserver 0.0.0.0:8000
+    #    command: python manage.py runserver 0.0.0.0:5008
     command: uvicorn backend.asgi:application --reload --host 0.0.0.0 --port 8000
+    #    command: uvicorn pms.asgi:application --ssl-keyfile=/app/vitlous.com.key --ssl-certfile=/app/vitlous.com.cer --host 0.0.0.0 --port 8000 --reload
     volumes:
       - .:/app/backend
+    #      - /root/.acme.sh/cwp_certs/www.vitlous.com/fullchain.cer:/app/vitlous.com.cer
+    #      - /root/.acme.sh/cwp_certs/www.vitlous.com/www.vitlous.com.key:/app/vitlous.com.key
     ports:
       - "8000:8000"
     env_file:
       - .env
     restart: always
 
+#  worker:
+#    build: .
+#    depends_on:
+#      - redis
+#      - db
+##    command: bash -c "celery -A backend worker -l info"
+#    env_file:
+#      - .env
+#    restart: always
 
-  celery_worker:
-    build: .
-    command: celery -A backend worker --loglevel=info
+#  beat:
+#    build: .
+#    depends_on:
+#      - redis
+#      - db
+##    command: bash -c "celery -A backend beat --loglevel=info"
+#    env_file:
+#      - .env
+#    restart: always
+
+
+  db-backup:
+    image: postgres
+    environment:
+      - PGPASSWORD=1516
     volumes:
-      - .:/app/celery
+      - ./dbbackup:/backup
+    #    command: >
+    #      bash -c "pg_dump -h db_v2 -p 5434 -U postgres -d erp_db > /backup/backup_$(date +%Y-%m-%d_%H:%M:%S).sql"
     depends_on:
-      - redis
-    restart: always
+      - db
+    profiles:
+      - backup
 
-  celery_beat:
-    build: .
-    command: celery -A backend beat --loglevel=info
+
+  db-restore:
+    image: postgres
+    environment:
+      - PGPASSWORD=1516
     volumes:
-      - .:/app/celery
+      - ./dbbackup:/backup
     depends_on:
-      - redis
-    restart: always
+      - db
+    profiles:
+      - restore
 
 
-
-volumes:
-  db_data:
-  db_backup:
