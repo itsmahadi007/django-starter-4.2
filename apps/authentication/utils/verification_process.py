@@ -117,8 +117,8 @@ def email_otp_verification(user, otp, using_for, password=None, request=None, tw
                     access_token, refresh_token = jwt_encode(user)
                     user_serializer = UserSerializerShort(user, context={"request": request})
                     message = {
-                        "access": access_token,
-                        "refresh": refresh_token,
+                        "access_token": str(access_token),
+                        "refresh_token": str(refresh_token),
                         "user": user_serializer.data,
                     }
                 elif using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_UPDATE:
@@ -161,8 +161,8 @@ def phone_otp_verification(user, otp, using_for, password=None, request=None, tw
                     access_token, refresh_token = jwt_encode(user)
                     user_serializer = UserSerializerShort(user, context={"request": request})
                     message = {
-                        "access": access_token,
-                        "refresh": refresh_token,
+                        "access_token": str(access_token),
+                        "refresh_token": str(refresh_token),
                         "user": user_serializer.data,
                     }
                 elif using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_UPDATE:

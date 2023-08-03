@@ -26,8 +26,8 @@ class CustomLoginView(LoginView):
             access_token = data.data["access"]
             refresh_token = data.data["refresh"]
             data = {
-                "access": access_token,
-                "refresh": refresh_token,
+                "access_token": access_token,
+                "refresh_token": refresh_token,
                 "user": user_serializer.data,
             }
 

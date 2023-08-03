@@ -72,9 +72,11 @@ def verify_email_otp(request):
         if two_factor_status is None:
             return Response({"error": "Please provide the two_factor"}, status=status.HTTP_400_BAD_REQUEST, )
         else:
-            if two_factor_status not in [True, False]:
+            two_factor_status = two_factor_status.lower()
+            if two_factor_status not in ["true", "false"]:
                 return Response({"error": "Please provide the two_factor in boolean"},
                                 status=status.HTTP_400_BAD_REQUEST, )
+            two_factor_status = two_factor_status == "true"
 
     try:
         user = UserManage.objects.get(email=email)
@@ -149,9 +151,11 @@ def verify_phone_otp(request):
         if two_factor_status is None:
             return Response({"error": "Please provide the two_factor"}, status=status.HTTP_400_BAD_REQUEST, )
         else:
-            if two_factor_status not in [True, False]:
+            two_factor_status = two_factor_status.lower()
+            if two_factor_status not in ["true", "false"]:
                 return Response({"error": "Please provide the two_factor in boolean"},
                                 status=status.HTTP_400_BAD_REQUEST, )
+            two_factor_status = two_factor_status == "true"
 
     try:
         user = UserManage.objects.get(email=email)
