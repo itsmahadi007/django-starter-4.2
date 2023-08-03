@@ -19,18 +19,19 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from apps.authentication.models.verification_models import EmailVerification
+from apps.authentication.utils.verification_process import email_otp_process_before_sent
 # from backend.sent_mail import sent_mail
 from apps.authentication.views.user_email_mobile_verification import (
     get_cache,
     set_cache,
     delete_cache,
-    send_verification_email_otp,
 )
 from apps.notification_manager.models import EmailPriorityStatus
 from apps.notification_manager.views.queue_remaster_views import email_queue_overhauler
 from apps.users_management.models import UserManage
 from apps.users_management.serializer.user_serializer import UserSerializerShort
-from backend.utils.encryption_decryption_simple import generate_key, encrypt_data, decrypt_data
+from backend.utils.encrypt_decrypt import generate_key, encrypt_data, decrypt_data
+from backend.utils.text_choices import VerificationForStatus
 
 sensitive_post_parameters_m = method_decorator(
     sensitive_post_parameters("password1", "password2"),
@@ -43,36 +44,15 @@ class CustomRegisterView(RegisterView):
         serializer.is_valid(raise_exception=True)
         try:
             user = self.perform_create(serializer)
-            username = user.username
-            email = user.email
-
-            # Create an email verification instance and send the OTP
-            email_verification = EmailVerification(user=user)
-            # otp = send_email_otp(username, email)
-            email_verification.token = uuid.uuid4()
-            email_verification.otp = random.randint(1000, 9999)
-            email_verification.expires_at = timezone.now() + datetime.timedelta(days=1)
-            email_verification.save()
-            send_verification_email_otp(email_verification)
-
+            message = email_otp_process_before_sent(user=user, using_for=VerificationForStatus.EMAIL_VERIFICATION)
         except Exception as e:
-            return Response(
-                {"error override": str(e)},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-        headers = self.get_success_headers(serializer.data)
-        # data = self.get_response_data(user)
-        data = {"message": "success"}
-        if data:
-            response = Response(
-                data,
-                status=status.HTTP_201_CREATED,
-                headers=headers,
-            )
-        else:
-            response = Response(status=status.HTTP_204_NO_CONTENT, headers=headers)
-
-        return response
+            return Response({"error override": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        
+        return Response(
+            {"message": message},
+            status=status.HTTP_201_CREATED,
+            headers=self.get_success_headers(serializer.data),
+        )
 
     def perform_create(self, serializer):
         user = serializer.save(self.request)

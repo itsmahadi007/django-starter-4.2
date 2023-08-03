@@ -2,6 +2,10 @@ from dj_rest_auth.views import LoginView
 from rest_framework import status
 from rest_framework.response import Response
 
+from apps.authentication.utils.verification_process import email_otp_process_before_sent
+from apps.users_management.serializer.user_serializer import UserSerializerShort
+from backend.utils.text_choices import VerificationForStatus
+
 
 class CustomLoginView(LoginView):
     def post(self, request, *args, **kwargs):
@@ -15,4 +19,23 @@ class CustomLoginView(LoginView):
                 {"error": "User email is not verified"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
-        return self.get_response()
+        data = self.get_response()
+        user = self.user
+        if user.two_factor_auth is True:
+            user_serializer = UserSerializerShort(user, context={"request": request})
+            access_token = data.data["access"]
+            refresh_token = data.data["refresh"]
+            data = {
+                "access": access_token,
+                "refresh": refresh_token,
+                "user": user_serializer.data,
+            }
+
+            return Response(data)
+
+        message = email_otp_process_before_sent(
+            user=user,
+            using_for=VerificationForStatus.TWO_FACTOR_AUTHENTICATION_LOGIN
+        )
+
+        return Response({"message": message})

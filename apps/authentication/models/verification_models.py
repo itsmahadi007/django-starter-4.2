@@ -4,6 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 from apps.users_management.models import UserManage
+from backend.utils.text_choices import VerificationForStatus
 
 
 class EmailVerification(models.Model):
@@ -13,6 +14,10 @@ class EmailVerification(models.Model):
     expires_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     used = models.BooleanField(default=False)
+    using_for = models.CharField(
+        max_length=100, choice=VerificationForStatus.choices,
+        default=VerificationForStatus.NO_REQUEST,
+        null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Check if the instance is being created
@@ -39,10 +44,15 @@ class EmailVerification(models.Model):
 
 class PhoneVerification(models.Model):
     user = models.OneToOneField(UserManage, on_delete=models.CASCADE)
-    token = models.CharField(max_length=6)
+    verifying_number = models.CharField(max_length=20, null=True, blank=True)
+    otp = models.CharField(max_length=6)
     expires_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     used = models.BooleanField(default=False)
+    using_for = models.CharField(
+        max_length=100, choice=VerificationForStatus.choices,
+        default=VerificationForStatus.NO_REQUEST,
+        null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Check if the instance is being created
@@ -56,7 +66,7 @@ class PhoneVerification(models.Model):
                 + " - "
                 + self.user.username
                 + " - "
-                + self.token
+                + self.otp
                 + " - "
                 + str(self.used)
                 + " - "

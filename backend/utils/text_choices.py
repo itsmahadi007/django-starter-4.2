@@ -46,3 +46,14 @@ class TransactionMedium(models.TextChoices):
     PAYPAL = "paypal", gettext_lazy("Paypal")
     OTHER = "other", gettext_lazy("Other")
     NOT_DEFINED = "not_defined", gettext_lazy("Not Defined")
+
+
+class VerificationForStatus(models.TextChoices):
+    PHONE_VERIFICATION = "phone_verification", gettext_lazy("Phone Verification")
+    EMAIL_VERIFICATION = "email_verification", gettext_lazy("Email Verification")
+    PASSWORD_RESET = "password_reset", gettext_lazy("Password Reset")
+    TWO_FACTOR_AUTHENTICATION_LOGIN = "two_factor_authentication_login", gettext_lazy("Two Factor Authentication Login")
+    TWO_FACTOR_AUTHENTICATION_UPDATE = "two_factor_authentication_update", gettext_lazy(
+        "Two Factor Authentication Update")
+    LOGIN = "login", gettext_lazy("Login")
+    NO_REQUEST = "no_request", gettext_lazy("No Request")
