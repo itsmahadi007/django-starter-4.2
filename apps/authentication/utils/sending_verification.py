@@ -12,7 +12,7 @@ def send_verification_sms(phone_verification):
         message = f"Your phone verification OTP is: {otp}."
     elif phone_verification.using_for == VerificationForStatus.PASSWORD_RESET:
         message = f"Your password reset OTP is: {otp}."
-    elif phone_verification.using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION:
+    elif phone_verification.using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_LOGIN:
         message = f"Your two factor authentication OTP is: {otp}."
     elif phone_verification.using_for == VerificationForStatus.LOGIN:
         message = f"Your login OTP is: {otp}."
@@ -30,7 +30,7 @@ def send_verification_email_otp(email_verification):
         message = f"Your email verification OTP is: {otp}."
     elif email_verification.using_for == VerificationForStatus.PASSWORD_RESET:
         message = f"Your password reset OTP is: {otp}."
-    elif email_verification.using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION:
+    elif email_verification.using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_LOGIN:
         message = f"Your two factor authentication OTP is: {otp}."
     elif email_verification.using_for == VerificationForStatus.LOGIN:
         message = f"Your login OTP is: {otp}."

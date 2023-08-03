@@ -2,7 +2,7 @@ from dj_rest_auth.views import (
     PasswordChangeView,
     LogoutView,
 )
-from dj_rest_auth.views import PasswordResetView, PasswordResetConfirmView
+from dj_rest_auth.views import PasswordResetConfirmView
 from django.urls import path, include
 from rest_framework import routers
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -19,8 +19,6 @@ from apps.authentication.views.user_email_mobile_verification import (
 from apps.authentication.views.user_login import CustomLoginView
 from apps.authentication.views.user_registration import (
     CustomRegisterView,
-    reset_password_otp_send,
-    reset_password_verify_otp,
 )
 
 route = routers.DefaultRouter()

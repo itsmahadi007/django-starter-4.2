@@ -21,7 +21,7 @@ class CustomLoginView(LoginView):
             )
         data = self.get_response()
         user = self.user
-        if user.two_factor_auth is True:
+        if user.two_factor_auth is False:
             user_serializer = UserSerializerShort(user, context={"request": request})
             access_token = data.data["access"]
             refresh_token = data.data["refresh"]
