@@ -14,7 +14,7 @@ from apps.notification_manager.models import EmailPriorityStatus
 from apps.notification_manager.views.queue_remaster_views import email_queue_overhauler, sms_queue_overhauler
 from apps.users_management.models import UserManage
 from apps.users_management.serializer.user_serializer import UserSerializer
-from backend.utils.text_choices import UserType, VerificationStatusType
+from backend.utils.text_choices import UserType
 
 sensitive_post_parameters_m = method_decorator(
     sensitive_post_parameters("password1", "password2"),
@@ -107,34 +107,12 @@ def user_update(request, id):
     # Update user_profile image fields with the provided files
     for field in [
         "profile_image",
-        "nid_image",
-        "passport_image",
-        "driving_license_image",
-        "tin_image",
     ]:
         if field in request.FILES:
             current_image = getattr(user_profile, field)
             if current_image:
                 current_image.delete()
             setattr(user_profile, field, request.FILES[field])
-
-            # Set the corresponding verification flag to False and request_verification field to True
-            # field_prefix = field.split("_")[0]
-            # verification_field = field_prefix + "_verified"
-            # request_verification_field = "request_" + field_prefix + "_verification"
-            # setattr(user_profile, verification_field, UserVerificationType.PENDING)
-            # setattr(user_profile, request_verification_field, True)
-
-    # Update user_profile identification number fields and set corresponding verification fields
-    for field in ["tin_no", "passport_no", "nid_no", "driving_license_no"]:
-        if field in request.data:
-            setattr(user_profile, field, request.data[field])
-
-            # Set the corresponding verification flag to False and request_verification field to True
-            # verification_field = field + "_verified"
-            # request_verification_field = "request_" + field + "_verification"
-            # setattr(user_profile, verification_field, UserVerificationType.PENDING)
-            # setattr(user_profile, request_verification_field, True)
 
     user_profile.save()
     # send_email_with_retry.apply_async(args=(subject, message, recipient_list, event))
@@ -204,69 +182,6 @@ def user_waiting_for_verification(request):
     serializer = UserSerializer(users, many=True, context={"request": request})
 
     return Response(serializer.data, status=status.HTTP_200_OK)
-
-
-@api_view(["PUT"])
-@permission_classes([IsAuthenticated])
-def user_verification_updates(request, id):
-    try:
-        user_profile = UserManage.objects.get(id=id)
-    except UserManage.DoesNotExist:
-        return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
-
-    # Update user verification fields with the provided data
-    for field in [
-        "nid_verified",
-        "passport_verified",
-        "driving_license_verified",
-        "tin_verified",
-    ]:
-        if field in request.data:
-            # Check if the value is one of the valid choices for UserVerificationType
-            if request.data[field] not in VerificationStatusType.values:
-                return Response(
-                    {"error": f"Invalid value {request.data[field]} for field {field}"},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-            setattr(user_profile, field, request.data[field])
-
-            field_prefix = field.split("_")[0]
-            if field == "driving_license_image":
-                field_prefix = "driving_license"
-
-            # If verification status is set to approved, set the corresponding request_verification flag to False
-            if request.data[field] != VerificationStatusType.PENDING:
-                request_verification_field = "request_" + field_prefix + "_verification"
-                setattr(user_profile, request_verification_field, False)
-
-            # If verification note for the field is included in the request data, update it
-            verification_note_field = field_prefix + "_verification_note"
-            if verification_note_field in request.data:
-                setattr(
-                    user_profile,
-                    verification_note_field,
-                    request.data[verification_note_field],
-                )
-
-    user_profile.save()
-
-    subject = "Study Care Profile Verification Update"
-    message = "Hello! You profile has some verification updates."
-
-    email_queue_overhauler(
-        subject=subject,  # Subject of the email
-        body=message,  # Body of the email
-        to_email=user_profile.email,  # Email address the email will be sent to
-        priority=EmailPriorityStatus.NORMAL,  # Priority status of the email in the queue
-        context=None,
-    )
-
-    serializer_obj = UserSerializer(user_profile, context={"request": request})
-
-    return Response(
-        serializer_obj.data,
-        status=status.HTTP_200_OK,
-    )
 
 
 class TestMail(APIView):

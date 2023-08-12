@@ -1,14 +1,13 @@
 from allauth.account.models import EmailAddress
-from django.core.management.base import BaseCommand
-
 from apps.users_management.models import UserManage
+from django.core.management.base import BaseCommand
 
 
 class Command(BaseCommand):
     help = "Add Sample Data"
 
     @staticmethod
-    def create_superuser(username, password, email, first_name, last_name, user_type=None):
+    def create_superuser(username, password, email, first_name, last_name, user_type):
         users = UserManage.objects.filter(username=username)
         num = len(users)
         if num:
@@ -24,6 +23,7 @@ class Command(BaseCommand):
             email_verified=True,
             first_name=first_name,
             last_name=last_name,
+            user_type=user_type,
         )
 
         EmailAddress.objects.create(
@@ -42,6 +42,7 @@ class Command(BaseCommand):
             email="itsmahadi@gmail.com",
             first_name="",
             last_name="",
+            user_type="admin",
         )
 
         self.create_superuser(
@@ -50,11 +51,13 @@ class Command(BaseCommand):
             email="me.mahadi10@gmail.com",
             first_name="Mahadi",
             last_name="Hassan",
+            user_type="admin",
         )
 
-        try:
-            print("User Created")
+        print("User Created")
 
+        try:
+            print("Creating data")
         except Exception as e:
             print(e)
             print("Error in creating data")

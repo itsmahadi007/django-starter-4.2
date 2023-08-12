@@ -21,10 +21,10 @@ class CustomLoginView(LoginView):
             )
         data = self.get_response()
         user = self.user
-        if user.two_factor_auth is False:
-            user_serializer = UserSerializerShort(user, context={"request": request})
-            access_token = data.data["access"]
-            refresh_token = data.data["refresh"]
+        user_serializer = UserSerializerShort(user, context={"request": request})
+        if user.two_step_verification is False:
+            access_token = data.data["access_token"]
+            refresh_token = data.data["refresh_token"]
             data = {
                 "access_token": access_token,
                 "refresh_token": refresh_token,
@@ -34,8 +34,7 @@ class CustomLoginView(LoginView):
             return Response(data)
 
         message = email_otp_process_before_sent(
-            user=user,
-            using_for=VerificationForStatus.TWO_FACTOR_AUTHENTICATION_LOGIN
+            user=user, using_for=VerificationForStatus.TWO_FACTOR_AUTHENTICATION_LOGIN
         )
 
-        return Response({"message": message})
+        return Response({"user": user_serializer.data}, status=status.HTTP_200_OK)

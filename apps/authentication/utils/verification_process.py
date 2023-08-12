@@ -6,9 +6,14 @@ from django.utils import timezone
 from rest_framework import status
 
 from apps.authentication.models import PhoneVerification, EmailVerification
-from apps.authentication.utils.sending_verification import send_verification_sms, send_verification_email_otp
+from apps.authentication.utils.sending_verification import (
+    send_verification_sms,
+    send_verification_email_otp,
+)
 from apps.users_management.serializer.user_serializer import UserSerializerShort
-from backend.utils.text_choices import VerificationForStatus
+from backend.utils.text_choices import (
+    VerificationForStatus,
+)
 
 
 def email_otp_process_before_sent(user, using_for):
@@ -22,8 +27,6 @@ def email_otp_process_before_sent(user, using_for):
         message = f"Two factor authentication OTP sent successfully."
     elif using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_UPDATE:
         message = f"OTP sent successfully for updating two factor authentication."
-    elif using_for == VerificationForStatus.LOGIN:
-        message = f"Login OTP sent successfully."
 
     try:
         email_verification = EmailVerification.objects.get(user=user)
@@ -47,14 +50,17 @@ def email_otp_process_before_sent(user, using_for):
             send_verification_email_otp(email_verification)
             return message
 
-    except PhoneVerification.DoesNotExist:
-        email_verification = PhoneVerification(user=user)
+    except EmailVerification.DoesNotExist:
+        email_verification = EmailVerification(user=user)
         email_verification.otp = random.randint(1000, 9999)
         email_verification.expires_at = timezone.now() + datetime.timedelta(days=1)
         email_verification.using_for = using_for
         email_verification.save()
-        send_verification_sms(email_verification)
+        send_verification_email_otp(email_verification)
         return "New " + message
+    except Exception as e:
+        print(e)
+        return "Something went wrong" + str(e)
 
 
 def phone_otp_process_before_sent(user, phone_number, using_for):
@@ -94,18 +100,28 @@ def phone_otp_process_before_sent(user, phone_number, using_for):
         return "Phone verification OTP sent successfully."
 
 
-def email_otp_verification(user, otp, using_for, password=None, request=None, two_factor=None):
+def email_otp_verification(
+        user,
+        otp,
+        using_for,
+        password=None,
+        request=None,
+        two_factor=None,
+):
     try:
         email_verification = EmailVerification.objects.get(user=user)
         if email_verification.using_for != using_for:
+            print(email_verification.using_for, using_for)
             return "This OTP type is not Correct.", status.HTTP_400_BAD_REQUEST
 
         if email_verification.used:
             return "This OTP has already been used.", status.HTTP_400_BAD_REQUEST
 
-        if email_verification.otp == otp:
+        print(email_verification.otp, otp)
+        if int(email_verification.otp) == int(otp):
             if timezone.now() <= email_verification.expires_at:
                 message = "Email verified successfully."
+                return_status = status.HTTP_200_OK
                 if using_for == VerificationForStatus.EMAIL_VERIFICATION:
                     user.email_verified = True
                     user.save()
@@ -115,19 +131,24 @@ def email_otp_verification(user, otp, using_for, password=None, request=None, tw
                     message = "Password reset successfully."
                 elif using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_LOGIN:
                     access_token, refresh_token = jwt_encode(user)
-                    user_serializer = UserSerializerShort(user, context={"request": request})
+                    user_serializer = UserSerializerShort(
+                        user, context={"request": request}
+                    )
                     message = {
                         "access_token": str(access_token),
                         "refresh_token": str(refresh_token),
                         "user": user_serializer.data,
                     }
-                elif using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_UPDATE:
-                    user.two_factor_auth = two_factor
+                elif (
+                        using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_UPDATE
+                ):
+                    user.two_step_verification = two_factor
                     user.save()
                     message = "Two factor authentication updated successfully."
+
                 email_verification.used = True
                 email_verification.save()
-                return message, status.HTTP_200_OK
+                return message, return_status
             else:
                 return "OTP has expired.", status.HTTP_400_BAD_REQUEST
         else:
@@ -137,18 +158,31 @@ def email_otp_verification(user, otp, using_for, password=None, request=None, tw
         return "Email verification record not found.", status.HTTP_400_BAD_REQUEST
 
 
-def phone_otp_verification(user, otp, using_for, password=None, request=None, two_factor=None):
+def phone_otp_verification(
+        user,
+        otp,
+        using_for,
+        password=None,
+        request=None,
+        two_factor=None,
+):
     try:
         phone_verification = PhoneVerification.objects.get(user=user)
         if phone_verification.using_for != using_for:
-            return "This OTP is not for email verification.", status.HTTP_400_BAD_REQUEST
+            return (
+                "This OTP is not for email verification.",
+                status.HTTP_400_BAD_REQUEST,
+            )
 
         if phone_verification.used:
             return "This OTP has already been used.", status.HTTP_400_BAD_REQUEST
 
-        if phone_verification.otp == otp:
+        print("OTP", phone_verification.otp, otp)
+        if int(phone_verification.otp) == int(otp):
+            # print("OTP")
             if timezone.now() <= phone_verification.expires_at:
                 message = "Phone verified successfully."
+                return_status = status.HTTP_200_OK
                 if using_for == VerificationForStatus.PHONE_VERIFICATION:
                     user.mobile = phone_verification.verifying_number
                     user.mobile_verified = True
@@ -159,19 +193,24 @@ def phone_otp_verification(user, otp, using_for, password=None, request=None, tw
                     message = "Password reset successfully."
                 elif using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_LOGIN:
                     access_token, refresh_token = jwt_encode(user)
-                    user_serializer = UserSerializerShort(user, context={"request": request})
+                    user_serializer = UserSerializerShort(
+                        user, context={"request": request}
+                    )
                     message = {
                         "access_token": str(access_token),
                         "refresh_token": str(refresh_token),
                         "user": user_serializer.data,
                     }
-                elif using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_UPDATE:
-                    user.two_factor_auth = two_factor
+                elif (
+                        using_for == VerificationForStatus.TWO_FACTOR_AUTHENTICATION_UPDATE
+                ):
+                    user.two_step_verification = two_factor
                     user.save()
                     message = "Two factor authentication updated successfully."
+
                 phone_verification.used = True
                 phone_verification.save()
-                return message, status.HTTP_200_OK
+                return message, return_status
             else:
                 return "OTP has expired.", status.HTTP_400_BAD_REQUEST
         else:

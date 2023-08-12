@@ -9,15 +9,15 @@ from backend.utils.text_choices import VerificationForStatus
 
 class EmailVerification(models.Model):
     user = models.OneToOneField(UserManage, on_delete=models.CASCADE)
-    token = models.CharField(max_length=100, null=True, blank=True)
     otp = models.CharField(max_length=6, null=True, blank=True)
     expires_at = models.DateTimeField()
     created_at = models.DateTimeField(auto_now_add=True)
     used = models.BooleanField(default=False)
     using_for = models.CharField(
-        max_length=100, choice=VerificationForStatus.choices,
+        max_length=100,
+        choices=VerificationForStatus.choices,
         default=VerificationForStatus.NO_REQUEST,
-        null=True, blank=True)
+    )
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Check if the instance is being created
@@ -29,16 +29,19 @@ class EmailVerification(models.Model):
 
     def __str__(self):
         return (
-                " ID "
-                + str(self.pk)
-                + " - "
-                + self.user.username
-                + " - "
-                + self.token
-                + " - "
-                + str(self.used)
-                + " - "
-                + str(self.expires_at)
+            " ID "
+            + str(self.id)
+            + " - "
+            + str(self.user.username) + " - " + str(self.user.email)
+            + " - "
+            + self.otp
+            + " - "
+            + str(self.used)
+            + " - "
+            + str(self.expires_at)
+            + " - "
+            + str(self.using_for)
+
         )
 
 
@@ -50,9 +53,10 @@ class PhoneVerification(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     used = models.BooleanField(default=False)
     using_for = models.CharField(
-        max_length=100, choice=VerificationForStatus.choices,
+        max_length=100,
+        choices=VerificationForStatus.choices,
         default=VerificationForStatus.NO_REQUEST,
-        null=True, blank=True)
+    )
 
     def save(self, *args, **kwargs):
         if not self.pk:  # Check if the instance is being created
@@ -61,16 +65,18 @@ class PhoneVerification(models.Model):
 
     def __str__(self):
         return (
-                " ID "
-                + str(self.pk)
-                + " - "
-                + self.user.username
-                + " - "
-                + self.otp
-                + " - "
-                + str(self.used)
-                + " - "
-                + str(self.expires_at)
+            " ID "
+            + str(self.id)
+            + " - "
+            + str(self.user.username) + " - " + str(self.user.email)
+            + " - "
+            + self.otp
+            + " - "
+            + str(self.used)
+            + " - "
+            + str(self.expires_at)
+            + " - "
+            + str(self.using_for)
         )
 
     class Meta:

@@ -22,9 +22,13 @@ class CustomRegisterView(RegisterView):
         serializer.is_valid(raise_exception=True)
         try:
             user = self.perform_create(serializer)
-            message = email_otp_process_before_sent(user=user, using_for=VerificationForStatus.EMAIL_VERIFICATION)
+            message = email_otp_process_before_sent(
+                user=user, using_for=VerificationForStatus.EMAIL_VERIFICATION
+            )
         except Exception as e:
-            return Response({"error override": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error override": str(e)}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         return Response(
             {"message": message},
