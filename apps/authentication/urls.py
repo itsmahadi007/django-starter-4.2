@@ -29,10 +29,10 @@ urlpatterns = [
     path("token-refresh/", TokenRefreshView.as_view(), name="token_refresh"),
     path("logout/", LogoutView.as_view()),
     # email and phone verification
-    path("api/request_by_email_verification/", request_email_verification),
-    path("api/request_by_phone_verification/", request_phone_verification),
-    path("api/verify_email_token/", verify_email_otp),
-    path("api/verify_phone_token/", verify_phone_otp),
+    path("request_by_email_verification/", request_email_verification),
+    path("request_by_phone_verification/", request_phone_verification),
+    path("verify_email_token/", verify_email_otp),
+    path("verify_phone_token/", verify_phone_otp),
     path("password-change/", PasswordChangeView.as_view(), name="rest_password_change"),
     # Social login
     path("social_facebook/", FacebookLogin.as_view(), name="fb_login"),
