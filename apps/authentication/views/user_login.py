@@ -23,11 +23,11 @@ class CustomLoginView(LoginView):
         user = self.user
         user_serializer = UserSerializerShort(user, context={"request": request})
         if user.two_step_verification is False:
-            access_token = data.data["access_token"]
-            refresh_token = data.data["refresh_token"]
+            access_token = data.data["access"]
+            refresh_token = data.data["refresh"]
             data = {
-                "access_token": access_token,
-                "refresh_token": refresh_token,
+                "access": access_token,
+                "refresh": refresh_token,
                 "user": user_serializer.data,
             }
 

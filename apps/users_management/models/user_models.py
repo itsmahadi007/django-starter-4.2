@@ -4,7 +4,7 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
 from django_advance_thumbnail import AdvanceThumbnailField
 
-from backend.utils.text_choices import UserType, RequestToCheckStatus
+from backend.utils.text_choices import UserType
 
 
 # from django_advance_thumbnail import AdvanceThumbnailField
@@ -54,15 +54,7 @@ class UserManage(AbstractUser):
     postal_code = models.CharField(max_length=100, null=True, blank=True)
     country = models.CharField(max_length=100, null=True, blank=True)
 
-    two_step_verification = models.BooleanField(default=True)
-
-    request_to_verify = models.CharField(
-        max_length=40,
-        choices=RequestToCheckStatus.choices,
-        default=RequestToCheckStatus.NO_REQUEST,
-        null=True,
-        blank=True,
-    )
+    two_step_verification = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         # skip_thumbnail_creation = kwargs.pop("skip_thumbnail_creation", False)
