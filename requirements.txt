@@ -58,7 +58,7 @@ sqlparse==0.4.4
 typing_extensions==4.7.1
 tzdata==2023.3
 uritemplate==4.1.1
-urllib3==2.0.3
+urllib3==2.0.6
 uvicorn==0.23.1
 uvloop==0.17.0
 vine==5.0.0
