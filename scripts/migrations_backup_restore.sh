@@ -27,7 +27,7 @@ fi
 TARGET_DIR="$BACKUP_FOLDER/migration_backup_${ENV_SUFFIX}_$DATE_TIME"
 
 # The directories you want to handle
-DIRS=("users_management" "authentication" "croud_founding" "notification_manager")
+DIRS=("users_management" "authentication" "notification_manager")
 
 echo "Please choose operation:"
 echo "1. Backup"
@@ -89,12 +89,12 @@ case $choice in
         ;;
     3)  # Remove operation
         echo "Removing Files:"
-        if [ -d "./media/" ] && [ "$(ls -A ./media/)" ]; then
-          rm -r ./media/*
-          echo "Deleted Media Files!"
-        else
-          echo "./media/ is empty or does not exist, skipping delete."
-        fi
+        #        if [ -d "./media/" ] && [ "$(ls -A ./media/)" ]; then
+        #          rm -r ./media/*
+        #          echo "Deleted Media Files!"
+        #        else
+        #          echo "./media/ is empty or does not exist, skipping delete."
+        #        fi
 
         for dir in ${DIRS[@]}; do
             if [ -d "$SOURCE_DIR/$dir/migrations" ]; then

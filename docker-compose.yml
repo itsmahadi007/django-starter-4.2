@@ -30,6 +30,9 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      - ENVIRONMENT=development
+      - DJANGO_RUNNING_IN_DOCKER=True
     depends_on:
       - db
       - redis
@@ -46,25 +49,23 @@ services:
       - .env
     restart: always
 
-#  worker:
-#    build: .
-#    depends_on:
-#      - redis
-#      - db
-##    command: bash -c "celery -A backend worker -l info"
-#    env_file:
-#      - .env
-#    restart: always
+  celery_worker:
+    build: .
+    command: celery -A backend worker --loglevel=info
+    volumes:
+      - .:/app/celery
+    depends_on:
+      - dev_redis
+    restart: always
 
-#  beat:
-#    build: .
-#    depends_on:
-#      - redis
-#      - db
-##    command: bash -c "celery -A backend beat --loglevel=info"
-#    env_file:
-#      - .env
-#    restart: always
+  celery_beat:
+      build: .
+      command: celery -A backend beat --loglevel=info
+      volumes:
+        - .:/app/celery
+      depends_on:
+        - dev_redis
+      restart: always
 
 
   db-backup:
@@ -72,13 +73,12 @@ services:
     environment:
       - PGPASSWORD=1516
     volumes:
-      - ./dbbackup:/backup
-    #    command: >
-    #      bash -c "pg_dump -h db_v2 -p 5434 -U postgres -d erp_db > /backup/backup_$(date +%Y-%m-%d_%H:%M:%S).sql"
+      - ./backup_database:/backup
     depends_on:
-      - db
+      - dev_db
     profiles:
       - backup
+
 
 
   db-restore:
@@ -86,9 +86,9 @@ services:
     environment:
       - PGPASSWORD=1516
     volumes:
-      - ./dbbackup:/backup
+      - ./backup_database:/backup
     depends_on:
-      - db
+      - dev_db
     profiles:
       - restore
 

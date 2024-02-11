@@ -14,9 +14,10 @@ load_env_and_set_compose_file() {
             export "$line"
         done < "$1"
         if [ "$2" = "dev" ]; then
-            COMPOSE_FILE="docker-compose.dev.yml"
+            COMPOSE_FILE="docker-compose.yml"
         else
-            COMPOSE_FILE="docker-compose.prod.yml"
+            COMPOSE_FILE="docker-compose.yml"
+#            COMPOSE_FILE="docker-compose.prod.yml"
         fi
     else
         echo "Environment file $1 not found!"
