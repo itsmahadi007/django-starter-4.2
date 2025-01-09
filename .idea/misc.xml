@@ -3,7 +3,7 @@
   <component name="Black">
     <option name="executionMode" value="BINARY" />
     <option name="pathToExecutable" value="/Library/Frameworks/Python.framework/Versions/3.10/bin/black" />
-    <option name="sdkUUID" value="8c8beb3d-2914-47eb-9524-dab23f08033f" />
+    <option name="sdkName" value="Python 3.10 (django-starter-4.2)" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (django-starter)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.10 (django-starter-4.2)" project-jdk-type="Python SDK" />
 </project>
